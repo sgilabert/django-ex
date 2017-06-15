@@ -102,7 +102,7 @@
             "from": {
               "kind": "ImageStreamTag",
               "namespace": "${NAMESPACE}",
-              "name": "python:2.7"
+              "name": "python:3.5"
             },
             "env": [
               {
