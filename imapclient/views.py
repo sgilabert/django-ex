@@ -37,8 +37,8 @@ def read_secrets():
         decrypted_account  = cipher.decrypt(encrypted_account)
         decrypted_password = cipher.decrypt(encrypted_password)
 
-        print 'Decrypted account is \'%s\'' % decrypted_account
-        print 'Decrypted password is \'%s\'' % decrypted_password
+        print ('Decrypted account is ' + decrypted_account)
+        print ('Decrypted password is ' + decrypted_password)
 
         return dict(
             account  = decrypted_account,
