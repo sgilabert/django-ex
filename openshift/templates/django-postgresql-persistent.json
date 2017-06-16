@@ -105,8 +105,9 @@
             "from": {
               "kind": "ImageStreamTag",
               "namespace": "${NAMESPACE}",
-              "name": "python:3.5"
+              "name": "python:2.7"
             },
+            "forcePull" : true,
             "env": [
               {
                   "name": "PIP_INDEX_URL",
