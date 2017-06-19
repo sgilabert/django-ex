@@ -72,6 +72,8 @@ def index(request):
 
     if account is None or password is None:
         secrets = read_secrets()
+        account = secrets.get('account')
+        password = secrets.get('password')
 
     if account is None or password is None:
         return render(request, 'imapclient/error.html', status=500)
