@@ -16,13 +16,13 @@ def read_secrets():
     service_url  = read_secret(settings.SAFEWALK_URL)
     access_token = read_secret(settings.SAFEWALK_ACCESS_TOKEN)
 
+    decrypted_account = None
+    decrypted_password = None
+
     if service_url and access_token:
 
         client = safewalk.SafewalkClient(service_url, access_token)
         secrets = client.get_secrets()
-
-        decrypted_account = None
-        decrypted_password = None
 
         if secrets :
 
