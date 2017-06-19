@@ -63,7 +63,8 @@ def read_secret(secret_name):
             sleep(5)
     return None
 
-secrets = read_secrets()
+secrets = dict()
+
 def index(request):
     global secrets
     account  = secrets.get('account')
