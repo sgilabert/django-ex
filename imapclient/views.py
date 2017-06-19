@@ -63,12 +63,14 @@ def read_secret(secret_name):
             sleep(5)
     return None
 
+secrets = read_secrets()
 def index(request):
-
-    secrets = read_secrets()
-
+    global secrets
     account  = secrets.get('account')
     password = secrets.get('password')
+
+    if account is None or password is None:
+        secrets = read_secrets()
 
     if account is None or password is None:
         return render(request, 'imapclient/error.html', status=500)
