@@ -1,6 +1,9 @@
+import os
+
 from django.shortcuts import render
 from . import utilities
 from . import safewalk
+from django.conf import settings
 
 import logging
 
@@ -10,50 +13,64 @@ def read_secrets():
 
     # Request the secrets to Safewalk
     # -------------------------------
-    service_url  = 'https://swk-integration.ddns.net:8443/'
-    access_token = 'abc123'
+    service_url  = read_secret(settings.SAFEWALK_URL)
+    access_token = read_secret(settings.SAFEWALK_ACCESS_TOKEN)
 
-    #client = safewalk.SafewalkClient(service_url, access_token)
-    #secrets = client.get_secrets()
+    if service_url and access_token:
 
-    identifier = '78463'
-    key = '1919cf5936ad193c04b3460fb3845e9d9846d8c7'
+        client = safewalk.SafewalkClient(service_url, access_token)
+        secrets = client.get_secrets()
 
-    # Dummy
-    secrets = dict(key=key, identifier=identifier, result='SUCCESS')
+        decrypted_account = None
+        decrypted_password = None
 
-    if secrets is not None and secrets['result'] == 'SUCCESS':
+        if secrets :
 
-        key        = secrets['key']
-        identifier = secrets['identifier']
+            if secrets is not None and secrets['result'] == 'SUCCESS':
 
-        # Read the secrets
-        # ----------------
-        # TODO : Read the secrets
-        encrypted_account  = 'hbroiA5nFfhg5d3O8B1/BadhQ1/HkJOZIj0eFS3AiDuKW3o9FxPm4no22XjasGMX'
-        encrypted_password = 'DHFRTHr3UeSTftF00jPma7tx/DemFPBR67dkBADi27pwREAc+ShwKIDcQHF+SreioGKZvPA6QJrPsuWviyc0d7F990mhCTK+0UQj5DfwjRQ='
-        #
-        cipher = utilities.AESCipher(key)
-        decrypted_account  = cipher.decrypt(encrypted_account)
-        decrypted_password = cipher.decrypt(encrypted_password)
+                key        = secrets['key']
+                identifier = secrets['identifier']
 
-        print ('Decrypted account is ' + decrypted_account)
-        print ('Decrypted password is ' + decrypted_password)
+                # Read the secrets
+                # ----------------
 
-        return dict(
-            account  = decrypted_account,
-            password = decrypted_password
-        )
+                encrypted_account  = read_secret('%s.%s' % (identifier, settings.IMAPCLIENT_ACCOUNT_NAME))
+                encrypted_password = read_secret('%s.%s' % (identifier, settings.IMAPCLIENT_ACCOUNT_PASSWORD))
 
+                # Decrypt the secrets
+                # -------------------
+                cipher = utilities.AESCipher(key)
+                if encrypted_account:
+                  decrypted_account  = cipher.decrypt(encrypted_account)
+                if encrypted_password:
+                  decrypted_password = cipher.decrypt(encrypted_password)
+
+    return dict(
+        account=decrypted_account,
+        password=decrypted_password
+    )
+
+def read_secret(secret_name):
+    fullpath = os.path.join(settings.IMAPCLIENT_MOUNT_LOCATION, secret_name)
+    try :
+        with open(fullpath, 'r') as f:
+            return f.readline().replace('\n','')
+    except IOError as e:
+        logger.exception('Fail to read %s' % secret_name)
     return None
-
-
 
 def index(request):
 
     secrets = read_secrets()
 
-    return render(request, 'imapclient/index.html', {
-        'account': secrets.get('account', '<undefined>'),
-        'mails' : utilities.read_mailbox(secrets.get('account'), secrets.get('password'))
-    })
+    account  = secrets.get('account')
+    password = secrets.get('password')
+
+    if account is None or password is None:
+        return render(request, 'imapclient/error.html', status=500)
+
+    else:
+        return render(request, 'imapclient/index.html', {
+            'account': secrets.get('account', '<undefined>'),
+            'mails' : utilities.read_mailbox(secrets.get('account'), secrets.get('password'))
+        })

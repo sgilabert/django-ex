@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -111,3 +112,33 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# SECRETS
+IMAPCLIENT_MOUNT_LOCATION   = '/tmp'
+IMAPCLIENT_ACCOUNT_NAME     = 'account-name'
+IMAPCLIENT_ACCOUNT_PASSWORD = 'account-password'
+
+# SAFEWALK CONFIGURATION
+SAFEWALK_URL          = 'safewalk-url'
+SAFEWALK_ACCESS_TOKEN = 'safewalk-access-token'
+
+# SAFEWALK_CONFIGURATION    = '
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'level' : 'DEBUG',
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers' : {
+        '' : {
+            'handlers' : ['console',],
+            'level' : 'DEBUG',
+            'propagate' : False
+        }
+    }
+}
+if DEBUG:
+  LOGGING['handlers']['console']['level']='DEBUG'
