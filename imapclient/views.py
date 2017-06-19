@@ -4,7 +4,7 @@ from django.shortcuts import render
 from . import utilities
 from . import safewalk
 from django.conf import settings
-
+from time import sleep
 import logging
 
 logger = logging.getLogger(__name__)
@@ -51,12 +51,16 @@ def read_secrets():
     )
 
 def read_secret(secret_name):
+    attempts = 5
     fullpath = os.path.join(settings.IMAPCLIENT_MOUNT_LOCATION, secret_name)
-    try :
-        with open(fullpath, 'r') as f:
-            return f.readline().replace('\n','')
-    except IOError as e:
-        logger.exception('Fail to read %s' % secret_name)
+    while attempts > 0:
+        try :
+            with open(fullpath, 'r') as f:
+                return f.readline().replace('\n','')
+        except IOError as e:
+            logger.exception('Fail to read %s' % secret_name)
+            attempts = attempts - 1
+            sleep(5)
     return None
 
 def index(request):
