@@ -51,14 +51,15 @@ def read_secrets():
     )
 
 def read_secret(secret_name):
-    attempts = 5
+    attempts = 10
     fullpath = os.path.join(settings.IMAPCLIENT_MOUNT_LOCATION, secret_name)
     while attempts > 0:
         try :
             with open(fullpath, 'r') as f:
                 return f.readline().replace('\n','')
         except IOError as e:
-            logger.exception('Fail to read %s' % secret_name)
+            #logger.exception('Fail to read %s' % secret_name)
+            logger.error("Waiting for secrets to be written to propagate on destination account (retrying in 5 seconds)")
             attempts = attempts - 1
             sleep(5)
     return None
@@ -76,6 +77,7 @@ def index(request):
         password = secrets.get('password')
 
     if account is None or password is None:
+        logger.error("Fail to read secrets.")
         return render(request, 'imapclient/error.html', status=500)
 
     else:
