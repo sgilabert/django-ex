@@ -50,8 +50,8 @@ def read_secrets():
         password=decrypted_password
     )
 
-def read_secret(secret_name):
-    attempts = 10
+def read_secret(secret_name):    
+    attempts = os.getenv('SECRET_READ_ATTEMPTS', 13)
     fullpath = os.path.join(settings.IMAPCLIENT_MOUNT_LOCATION, secret_name)
     while attempts > 0:
         try :
