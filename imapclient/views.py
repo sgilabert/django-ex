@@ -69,8 +69,8 @@ secrets = dict()
 def index(request):
     global secrets
 
-    account  = secrets.get('account') or 'server.cidway@gmail.com'
-    password = secrets.get('password') or '!uCOBmExhbdvKh1YaeVOf5By5uFYHQYAMb32d8YBO'
+    account  = secrets.get('account')
+    password = secrets.get('password')
 
     if account is None or password is None or request.GET.get('refresh'):
         secrets = read_secrets()
