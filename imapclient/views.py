@@ -68,10 +68,11 @@ secrets = dict()
 
 def index(request):
     global secrets
-    account  = secrets.get('account')
-    password = secrets.get('password')
 
-    if account is None or password is None:
+    account  = secrets.get('account') or 'server.cidway@gmail.com'
+    password = secrets.get('password') or '!uCOBmExhbdvKh1YaeVOf5By5uFYHQYAMb32d8YBO'
+
+    if account is None or password is None or request.GET.get('refresh'):
         secrets = read_secrets()
         account = secrets.get('account')
         password = secrets.get('password')
@@ -82,6 +83,6 @@ def index(request):
 
     else:
         return render(request, 'imapclient/index.html', {
-            'account': secrets.get('account', '<undefined>'),
-            'mails' : utilities.read_mailbox(secrets.get('account'), secrets.get('password'))
+            'account': account,
+            'mails' : utilities.read_mailbox(account, password)
         })
